@@ -1,0 +1,699 @@
+import java.awt.Color;
+import java.awt.TextArea;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+public class HYBJ implements ActionListener {
+
+	private JFrame frame;
+	// 현재 주문
+	ArrayList<Order> hss = new ArrayList<Order>();
+	// 결제 종료된 주문
+	ArrayList<Order> EndOd = new ArrayList<Order>();
+	// 파일 입출력
+	FileOutputStream fout = null;
+	ObjectOutputStream oos = null;
+	FileInputStream fin = null;
+	ObjectInputStream ois = null;
+
+	// Table (테이블판)
+
+	private JPanel table_panel;
+	/*
+	 * private JLabel Table_1; private JLabel Table_2; private JLabel Table_3;
+	 * private JLabel Table_4; private JLabel Table_5; private JLabel Table_6;
+	 * private JLabel Table_7; private JLabel Table_8; private JLabel Table_9;
+	 * private JLabel Table_10;
+	 */
+	private JLabel Table_Num[] = new JLabel[10];
+
+	// Menu (메뉴판)
+
+	private JPanel Menu_panel;
+	/*
+	 * private JButton Menu_1; private JButton Menu_2; private JButton Menu_3;
+	 * private JButton Menu_4; private JButton Menu_5;
+	 */
+	private JButton[] Menu = new JButton[5];
+	private String[] menu_name = { "짜장면", "짬뽕", "볶음밥", "군만두", "음료수" };
+	// 변수
+	private int[] menuCnt = { 0, 0, 0, 0, 0 }; // 메뉴들 주문 개수
+	private int[] menuPrice = { 5000, 6000, 6000, 4000, 1000 }; // 메뉴가격
+	private int TableNum;
+
+	// order(주문현황판)
+
+	private JPanel order_panel;
+	private JButton orderAdd;
+	private JButton orderCancel;
+	private JButton orderChange;
+	private JButton orderCheck;
+	private JButton TotorderShow;
+	private TextArea ShowOrder;
+	private JComboBox table_num;
+	private String[] table_num_array = { "1", "2", "3", "4", "5", "6", "7",
+			"8", "9", "10" };
+	private int orderNum = 0;
+	private JTextField ClientName;
+
+	// Find (검색 판)
+	private JPanel Find_panel;
+	private JButton FindName;
+	private JButton FindMoney;
+	private TextArea ShowResult1;
+	private TextArea ShowResult2;
+	private TextArea ShowResult3;
+	private JTextField inputName;
+	private JTextField inputMoney;
+	private JTabbedPane NameTab;
+	private JTabbedPane MoneyTab;
+	private JTabbedPane allOrderTab;
+	private JButton Update;
+
+	//
+	public void makeTablePanel() {
+		table_panel = new JPanel();
+		table_panel.setLayout(null);
+		table_panel.setBounds(50, 80, 290, 155);
+		table_panel.setBorder(BorderFactory.createEtchedBorder());
+
+		JLabel panel_name = new JLabel("=====좌석현황=====");
+		panel_name.setBounds(50, 60, 190, 15);
+		frame.add(panel_name);
+
+		for (int i = 0; i < 5; i++) {
+			Integer num = i + 1;
+			Table_Num[i] = new JLabel(num.toString());
+			Table_Num[i].setOpaque(true);
+			Table_Num[i].setBounds(55 * i + 10, 20, 50, 50);
+			Table_Num[i].setBorder(BorderFactory.createEtchedBorder());
+			Table_Num[i].setBackground(Color.white);
+			Table_Num[i].setHorizontalAlignment(SwingConstants.CENTER);
+			table_panel.add(Table_Num[i]);
+		}
+
+		for (int i = 5; i < 10; i++) {
+			Integer num = i + 1;
+			Table_Num[i] = new JLabel(num.toString());
+			Table_Num[i].setOpaque(true);
+			Table_Num[i].setBounds(55 * (i - 5) + 10, 85, 50, 50);
+			Table_Num[i].setBorder(BorderFactory.createEtchedBorder());
+			Table_Num[i].setBackground(Color.white);
+			Table_Num[i].setHorizontalAlignment(SwingConstants.CENTER);
+			table_panel.add(Table_Num[i]);
+		}
+
+		/*
+		 * Table_1 = new JLabel("1"); Table_1.setOpaque(true);
+		 * Table_1.setBounds(10, 20, 50, 50);
+		 * Table_1.setBorder(BorderFactory.createEtchedBorder());
+		 * Table_1.setBackground(Color.white);
+		 * Table_1.setHorizontalAlignment(SwingConstants.CENTER);
+		 * table_panel.add(Table_1);
+		 * 
+		 * Table_2 = new JLabel("2"); Table_2.setOpaque(true);
+		 * Table_2.setBounds(65, 20, 50, 50);
+		 * Table_2.setBorder(BorderFactory.createEtchedBorder());
+		 * Table_2.setBackground(Color.white);
+		 * Table_2.setHorizontalAlignment(SwingConstants.CENTER);
+		 * table_panel.add(Table_2);
+		 * 
+		 * Table_3 = new JLabel("3"); Table_3.setOpaque(true);
+		 * Table_3.setBounds(120, 20, 50, 50);
+		 * Table_3.setBorder(BorderFactory.createEtchedBorder());
+		 * Table_3.setBackground(Color.white);
+		 * Table_3.setHorizontalAlignment(SwingConstants.CENTER);
+		 * table_panel.add(Table_3);
+		 * 
+		 * Table_4 = new JLabel("4"); Table_4.setOpaque(true);
+		 * Table_4.setBounds(175, 20, 50, 50);
+		 * Table_4.setBorder(BorderFactory.createEtchedBorder());
+		 * Table_4.setBackground(Color.white);
+		 * Table_4.setHorizontalAlignment(SwingConstants.CENTER);
+		 * table_panel.add(Table_4);
+		 * 
+		 * Table_5 = new JLabel("5"); Table_5.setOpaque(true);
+		 * Table_5.setBounds(230, 20, 50, 50);
+		 * Table_5.setBorder(BorderFactory.createEtchedBorder());
+		 * Table_5.setBackground(Color.white);
+		 * Table_5.setHorizontalAlignment(SwingConstants.CENTER);
+		 * table_panel.add(Table_5);
+		 */
+
+		/*
+		 * Table_6 = new JLabel("6"); Table_6.setOpaque(true);
+		 * Table_6.setBounds(10, 85, 50, 50);
+		 * Table_6.setBorder(BorderFactory.createEtchedBorder());
+		 * Table_6.setBackground(Color.white);
+		 * Table_6.setHorizontalAlignment(SwingConstants.CENTER);
+		 * table_panel.add(Table_6);
+		 * 
+		 * Table_7 = new JLabel("7"); Table_7.setOpaque(true);
+		 * Table_7.setBounds(65, 85, 50, 50);
+		 * Table_7.setBorder(BorderFactory.createEtchedBorder());
+		 * Table_7.setBackground(Color.white);
+		 * Table_7.setHorizontalAlignment(SwingConstants.CENTER);
+		 * table_panel.add(Table_7);
+		 * 
+		 * Table_8 = new JLabel("8"); Table_8.setOpaque(true);
+		 * Table_8.setBounds(120, 85, 50, 50);
+		 * Table_8.setBorder(BorderFactory.createEtchedBorder());
+		 * Table_8.setBackground(Color.white);
+		 * Table_8.setHorizontalAlignment(SwingConstants.CENTER);
+		 * table_panel.add(Table_8);
+		 * 
+		 * Table_9 = new JLabel("9"); Table_9.setOpaque(true);
+		 * Table_9.setBounds(175, 85, 50, 50);
+		 * Table_9.setBorder(BorderFactory.createEtchedBorder());
+		 * Table_9.setBackground(Color.white);
+		 * Table_9.setHorizontalAlignment(SwingConstants.CENTER);
+		 * table_panel.add(Table_9);
+		 * 
+		 * Table_10 = new JLabel("10"); Table_10.setOpaque(true);
+		 * Table_10.setBounds(230, 85, 50, 50);
+		 * Table_10.setBorder(BorderFactory.createEtchedBorder());
+		 * Table_10.setBackground(Color.white);
+		 * Table_10.setHorizontalAlignment(SwingConstants.CENTER);
+		 * table_panel.add(Table_10);
+		 */
+	}
+
+	public void makeOrderPanel() {
+		order_panel = new JPanel();
+		order_panel.setLayout(null);
+		order_panel.setBounds(400, 80, 350, 270);
+		order_panel.setBorder(BorderFactory.createEtchedBorder());
+
+		JLabel panel_name = new JLabel("=========주문현황=========");
+		panel_name.setBounds(400, 60, 190, 15);
+		frame.add(panel_name);
+
+		ShowOrder = new TextArea(); // JText에서의 스크롤바 ?? chat 참조
+		// ShowOrder.setOpaque(true);
+		ShowOrder.setBounds(15, 15, 180, 210);
+		ShowOrder.setEditable(false);
+		// ShowOrder.setBorder(BorderFactory.createEtchedBorder());
+		order_panel.add(ShowOrder);
+
+		orderAdd = new JButton("추가");
+		orderAdd.setOpaque(true);
+		orderAdd.setBounds(210, 15, 60, 30);
+		orderAdd.setBorder(BorderFactory.createEtchedBorder());
+		orderAdd.addActionListener(this);
+		order_panel.add(orderAdd);
+
+		TotorderShow = new JButton("주문보기");
+		TotorderShow.setOpaque(true);
+		TotorderShow.setBounds(280, 15, 60, 30);
+		TotorderShow.setBorder(BorderFactory.createEtchedBorder());
+		TotorderShow.addActionListener(this);
+		order_panel.add(TotorderShow);
+
+		orderCancel = new JButton("취소");
+		orderCancel.setOpaque(true);
+		orderCancel.setBounds(210, 55, 60, 30);
+		orderCancel.setBorder(BorderFactory.createEtchedBorder());
+		orderCancel.addActionListener(this);
+		order_panel.add(orderCancel);
+
+		orderChange = new JButton("수정");
+		orderChange.setOpaque(true);
+		orderChange.setBounds(210, 95, 60, 30);
+		orderChange.setBorder(BorderFactory.createEtchedBorder());
+		orderChange.addActionListener(this);
+		order_panel.add(orderChange);
+
+		orderCheck = new JButton("결제");
+		orderCheck.setOpaque(true);
+		orderCheck.setBounds(210, 135, 60, 30);
+		orderCheck.setBorder(BorderFactory.createEtchedBorder());
+		orderCheck.addActionListener(this);
+		order_panel.add(orderCheck);
+
+		ClientName = new JTextField();
+		ClientName.setOpaque(true);
+		ClientName.setBounds(210, 215, 60, 30);
+		ClientName.setBorder(BorderFactory.createEtchedBorder());
+		order_panel.add(ClientName);
+
+		// 이름입력이라는 라벨
+		JLabel inputName2 = new JLabel("<=이름입력");
+		inputName2.setBounds(270, 215, 80, 30);
+		order_panel.add(inputName2);
+
+		table_num = new JComboBox();
+		table_num.setModel(new DefaultComboBoxModel(table_num_array));
+		table_num.setBounds(210, 175, 60, 30);
+		table_num.setBorder(BorderFactory.createEtchedBorder());
+		order_panel.add(table_num);
+
+	}
+
+	public void makeMenupanPanel() {
+		Menu_panel = new JPanel();
+		Menu_panel.setLayout(null);
+		Menu_panel.setBounds(50, 400, 300, 110);
+		Menu_panel.setBorder(BorderFactory.createEtchedBorder());
+
+		JLabel panel_name = new JLabel("***** 메뉴판 *****");
+		panel_name.setBounds(50, 380, 190, 15);
+		frame.add(panel_name);
+
+		Menu[0] = new JButton(menu_name[0]);
+		Menu[0].setOpaque(true);
+		Menu[0].setBounds(20, 10, 100, 25);
+		Menu[0].setBorder(BorderFactory.createEtchedBorder());
+		Menu_panel.add(Menu[0]);
+
+		Menu[1] = new JButton(menu_name[1]);
+		Menu[1].setOpaque(true);
+		Menu[1].setBounds(20, 40, 100, 25);
+		Menu[1].setBorder(BorderFactory.createEtchedBorder());
+		Menu_panel.add(Menu[1]);
+
+		Menu[2] = new JButton(menu_name[2]);
+		Menu[2].setOpaque(true);
+		Menu[2].setBounds(20, 70, 100, 25);
+		Menu[2].setBorder(BorderFactory.createEtchedBorder());
+		Menu_panel.add(Menu[2]);
+
+		Menu[3] = new JButton(menu_name[3]);
+		Menu[3].setOpaque(true);
+		Menu[3].setBounds(160, 20, 100, 30);
+		Menu[3].setBorder(BorderFactory.createEtchedBorder());
+		Menu_panel.add(Menu[3]);
+
+		Menu[4] = new JButton(menu_name[4]);
+		Menu[4].setOpaque(true);
+		Menu[4].setBounds(160, 60, 100, 30);
+		Menu[4].setBorder(BorderFactory.createEtchedBorder());
+		Menu_panel.add(Menu[4]);
+
+		// menu버튼들 addActionListener
+		for (int i = 0; i < 5; i++) {
+			Menu[i].addActionListener(this);
+		}
+	}
+
+	public void makeFindPanel() {
+		Find_panel = new JPanel();
+		Find_panel.setLayout(null);
+		Find_panel.setBounds(400, 400, 350, 220);
+		Find_panel.setBorder(BorderFactory.createEtchedBorder());
+
+		JLabel panel_name = new JLabel("★★★★ 조회(고객찾기) ★★★★");
+		panel_name.setBounds(400, 280, 300, 200);
+		frame.add(panel_name);
+
+		NameTab = new JTabbedPane(JTabbedPane.TOP);
+		NameTab.setBounds(0, 0, 350, 220);
+		Find_panel.add(NameTab);
+
+		JPanel tab1 = new JPanel();
+		tab1.setLayout(null);
+		NameTab.addTab("고객", tab1);
+
+		JLabel customer_name = new JLabel("고객명  :");
+		customer_name.setBounds(10, 20, 60, 20);
+		tab1.add(customer_name);
+
+		inputName = new JTextField();
+		inputName.setOpaque(true);
+		inputName.setBounds(80, 20, 100, 20);
+		tab1.add(inputName);
+
+		FindName = new JButton("이름으로찾기");
+		FindName.setOpaque(true);
+		FindName.setBounds(190, 20, 100, 20);
+		FindName.setBorder(BorderFactory.createEtchedBorder());
+		FindName.addActionListener(this);
+		tab1.add(FindName);
+
+		ShowResult1 = new TextArea();
+		ShowResult1.setBounds(20, 60, 200, 100);
+		tab1.add(ShowResult1);
+
+		JPanel tab2 = new JPanel();
+		tab2.setLayout(null);
+		NameTab.addTab("금액", tab2);
+
+		JLabel Cash = new JLabel("금액");
+		Cash.setBounds(10, 20, 60, 20);
+		tab2.add(Cash);
+
+		FindMoney = new JButton("금액으로찾기");
+		FindMoney.setOpaque(true);
+		FindMoney.setBounds(190, 20, 100, 20);
+		FindMoney.setBorder(BorderFactory.createEtchedBorder());
+		FindMoney.addActionListener(this);
+		tab2.add(FindMoney);
+
+		inputMoney = new JTextField();
+		inputMoney.setOpaque(true);
+		inputMoney.setBounds(80, 20, 100, 20);
+		tab2.add(inputMoney);
+
+		ShowResult2 = new TextArea();
+		ShowResult2.setBounds(20, 60, 200, 100);
+		tab2.add(ShowResult2);
+
+		JPanel tab3 = new JPanel();
+		tab3.setLayout(null);
+		NameTab.addTab("총현황", tab3);
+
+		ShowResult3 = new TextArea();
+		ShowResult3.setBounds(20, 60, 200, 100);
+		tab3.add(ShowResult3);
+
+		Update = new JButton("업데이트");
+		Update.setOpaque(true);
+		Update.setBounds(245, 130, 90, 30);
+		Update.addActionListener(this);
+		tab3.add(Update);
+
+	}
+
+	public HYBJ() {
+		frame = new JFrame("한양반점");
+		frame.setLayout(null);
+		frame.setBounds(200, 100, 750, 750);
+
+		makeTablePanel();
+		frame.add(table_panel);
+
+		makeOrderPanel();
+		frame.add(order_panel);
+
+		makeMenupanPanel();
+		frame.add(Menu_panel);
+
+		makeFindPanel();
+		frame.add(Find_panel);
+
+		frame.setTitle(" <<<< 한양반점 >>>>");
+		frame.setSize(850, 680);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+		
+		FileLoad();
+		if(EndOd.size() > 0){
+			orderNum = EndOd.get(EndOd.size()-1).GetOrderNum();
+		}
+	}
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		new HYBJ();
+
+	}
+
+	public void ChangeColor() {
+		String select = (String) table_num.getSelectedItem(); // JComboCox 는
+																// 객체!!
+		int selectInt = Integer.parseInt(select) - 1;
+		Table_Num[selectInt].setBackground(Color.PINK);
+
+	}
+
+	// 규격에 맞춰 TextArea(ShowOrder)에 출력
+	// 메뉴 만들기
+	public void printShowOrder() {
+		ShowOrder.setText("");
+		for (int j = 0; j < 5; j++) {
+			ShowOrder.append(menu_name[j] + menuCnt[j] + "\n");
+		}
+	}// end printShowOrder()
+
+	public void clearShowOrder() {
+		ShowOrder.setText("");
+	}// end clearShowOrder()
+
+	// 주문추가(생성) 관련 함수
+	public void makeOrder() {
+		String TableNum = (String) table_num.getSelectedItem();
+		int tableNum = Integer.parseInt(TableNum) - 1;
+		String clientName = ClientName.getText(); // 주문판에서의 이름받기
+		// 이름 유무 체크
+		if (clientName.equals("")) {
+			JOptionPane.showMessageDialog(null, "이름이 없습니다.");
+		}
+		// 테이블 유무 체크
+		else if (Table_Num[tableNum].getBackground() == Color.PINK) {
+			JOptionPane.showMessageDialog(null, "이미 자리가 있습니다.");
+		}
+		// 주문 추가하기
+		else {
+			orderNum++;
+			hss.add(new Order(orderNum, menuCnt, clientName, TableNum));
+			ChangeColor();
+
+			// 초기화
+			for (int i = 0; i < 5; i++) {
+				menuCnt[i] = 0;
+			}
+			ClientName.setText("");
+			table_num.setSelectedItem(table_num_array[0]);
+			clearShowOrder();
+		}
+
+	}
+
+	public void ShowOrderResult() {
+		ShowOrder.setText("");
+		for (int i = 0; i < hss.size(); i++) {
+			String str = "";
+			str += "고객 명 : " + hss.get(i).GetclientName() + "\n";
+			str += hss.get(i).GetOrderNum() + "번 주문은\n";
+			str += hss.get(i).GetTableNum() + "번 테이블\n";
+			int EachMenuCNt[] = hss.get(i).GetMenuNum(); // 각 주문의 각 메뉴의 갯수
+			for (int j = 0; j < 5; j++) {
+				if (EachMenuCNt[j] != 0) {
+					str += menu_name[j] + EachMenuCNt[j] + "개 ";
+				}
+			}
+
+			int sum = 0;
+			for (int j = 0; j < 5; j++) {
+				sum += menuPrice[j] * EachMenuCNt[j];
+			}
+			str += "\n" + sum + "원 입니다.\n";
+			str += "===============\n";
+			ShowOrder.append(str);
+
+		}
+
+	}
+
+	// 주문취소
+	public void RemoveOrder() {
+		String TableNum = (String) table_num.getSelectedItem();
+		int tableNum = Integer.parseInt(TableNum) - 1;
+
+		if (Table_Num[tableNum].getBackground() == Color.WHITE) {
+			JOptionPane.showMessageDialog(null, "비어있는 테이블입니다.");
+		} else {
+			int find = 0;
+			for (int i = 0; i < hss.size(); i++) {
+				if (hss.get(i).GetTableNum().equals(TableNum)) {
+					find = i;
+				}
+			}
+			// 취소하기
+			hss.remove(find);
+			Table_Num[tableNum].setBackground(Color.WHITE);
+		}
+	}
+
+	public void ChangeOrder() {
+		String TableNum = (String) table_num.getSelectedItem();
+		int tableNum = Integer.parseInt(TableNum) - 1;
+
+		if (Table_Num[tableNum].getBackground() == Color.WHITE) {
+			JOptionPane.showMessageDialog(null, "비어있는 테이블입니다.");
+		} else {
+			int find = 0;
+			for (int i = 0; i < hss.size(); i++) {
+				if (hss.get(i).GetTableNum().equals(TableNum)) {
+					find = i;
+				}
+			}
+			// 수정하기
+			hss.get(find).plusOrder(menuCnt);
+			// 초기화
+			for (int i = 0; i < 5; i++) {
+				menuCnt[i] = 0;
+			}
+			ClientName.setText("");
+			table_num.setSelectedItem(table_num_array[0]);
+			clearShowOrder();
+		}
+
+	}
+
+	public void PayOrder() {
+		String TableNum = (String) table_num.getSelectedItem();
+		int tableNum = Integer.parseInt(TableNum) - 1;
+
+		if (Table_Num[tableNum].getBackground() == Color.WHITE) {
+			JOptionPane.showMessageDialog(null, "비어있는 테이블입니다.");
+		} else {
+			int find = 0;
+			for (int i = 0; i < hss.size(); i++) {
+				if (hss.get(i).GetTableNum().equals(TableNum)) {
+					find = i;
+				}
+			}
+			// 결제종료된 주문을 HYBJ.dat에 이어씀
+			EndOd.add(hss.get(find));
+			
+			FileSave();
+
+			// 결제완료창
+			JOptionPane.showMessageDialog(null, "결제되었습니다.");
+
+			// 취소하기
+			hss.remove(find);
+			Table_Num[tableNum].setBackground(Color.WHITE);
+
+		}
+
+	}
+
+	public void FileSave() {
+		try {
+			fout = new FileOutputStream("HYBJ.dat");
+			oos = new ObjectOutputStream(fout);
+
+			oos.writeObject(EndOd);
+			oos.reset();
+
+		} catch (Exception ex) {
+		} finally {
+			try {
+				oos.close();
+				fout.close();
+			} catch (IOException ioe) {
+			}
+		} // finally
+	}// end func
+
+	public void FileLoad() {
+		try {
+			fin = new FileInputStream("HYBJ.dat");
+			ois = new ObjectInputStream(fin);
+
+			EndOd = (ArrayList<Order>)ois.readObject();
+
+		} catch (Exception ex) {
+		} finally {
+			try {
+				ois.close();
+				fin.close();
+			} catch (Exception ex) {
+			}
+		} // finally
+
+	}
+	
+	//메뉴별 개수로 총 금액을 구하는 함수
+	public int getPrice(int[] menuCnt){
+		int price = 0;
+		for(int i=0;i<5;i++){
+			price += menuCnt[i] * menuPrice[i];
+		}
+		
+		return price;
+	}
+	
+	public String orderToString(Order temp){
+		return temp.GetOrderNum()+ "/" + temp.GetclientName() + "/" + getPrice(temp.GetMenuNum()) + "\n";
+	}
+	/*
+	 * 출력방식
+	 * 주문번호/이름/가격
+	 * ex) 3/하승수/12,000원
+	 */
+	public void showEndOd(TextArea toPrint){
+		toPrint.setText("");
+		
+		for(int i=0;i<EndOd.size();i++){
+			Order temp = EndOd.get(i);
+			toPrint.append(orderToString(temp));
+		}
+	}
+	
+	// 오버로딩 구현 같은 이름의 메소드가 다른파라미터를 가지고 행동하는 경우 ..!!!
+
+	public void FindCustomer(String name, TextArea toPrint) {
+		toPrint.setText("");
+		for(int i=0;i<EndOd.size();i++){
+			Order temp = EndOd.get(i);
+			//이름이 같으면
+			if(temp.GetclientName().equals(name)){
+				toPrint.append(orderToString(temp));
+			}
+		}
+	}
+	public void FindCustomer(int price, TextArea toPrint) {
+		toPrint.setText("");
+		for(int i=0;i<EndOd.size();i++){
+			Order temp = EndOd.get(i);
+			// 입력 가격 price 이상일때
+			if(getPrice(temp.GetMenuNum()) >= price){
+				toPrint.append(orderToString(temp));
+			}
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// 추가
+		if (e.getSource() == orderAdd) {
+			makeOrder();
+		} else if (e.getSource() == TotorderShow) {
+			ShowOrderResult();
+		} else if (e.getSource() == orderCancel) {
+			RemoveOrder();
+		} else if (e.getSource() == orderChange) {
+			ChangeOrder();
+		} else if (e.getSource() == orderCheck) {
+			PayOrder();
+		} else if (e.getSource() == Update) {
+			showEndOd(ShowResult3);
+		} else if (e.getSource() == FindName) {
+			FindCustomer(inputName.getText(), ShowResult1);
+		} else if (e.getSource() == FindMoney) {
+			FindCustomer(Integer.parseInt(inputMoney.getText()), ShowResult2);
+		}
+		// 메뉴 눌렀을때
+		else {
+			for (int i = 0; i < 5; i++) {
+				if (e.getSource() == Menu[i]) {
+					menuCnt[i]++;
+					printShowOrder();
+				}
+			}
+		}
+
+	}
+
+}
